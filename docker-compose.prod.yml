@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: inventory_postgres_prod
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inventory_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: inventory_backend_prod
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      DEBUG: "False"
+      CORS_ORIGINS: '["https://${DOMAIN}"]'
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - inventory_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: ""   # empty = same-origin (nginx proxies /api)
+    container_name: inventory_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - inventory_net
+
+  # Nginx reverse-proxy — serves frontend and forwards /api to backend
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: inventory_nginx_prod
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mount the React build output from the frontend container at build time
+      # (use a named volume populated by the frontend build stage)
+      - frontend_build:/usr/share/nginx/html:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    networks:
+      - inventory_net
+
+volumes:
+  postgres_data_prod:
+    driver: local
+  frontend_build:
+    driver: local
+
+networks:
+  inventory_net:
+    name: inventory_network_prod
