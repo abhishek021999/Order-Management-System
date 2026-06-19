@@ -11,7 +11,7 @@ A production-ready, fully containerized Inventory & Order Management System buil
 | Frontend | https://inventory-frontend.vercel.app |
 | Backend API | https://inventory-backend-5r3a.onrender.com |
 | API Docs (Swagger) | https://inventory-backend-5r3a.onrender.com/api/docs |
-| API Docs (ReDoc) | https://inventory-backend-5r3a.onrender.com/api/redoc |
+
 
 ---
 
