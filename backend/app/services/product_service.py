@@ -78,12 +78,21 @@ def update_product(db: Session, product_id: int, product_update: ProductUpdate) 
 
 
 def delete_product(db: Session, product_id: int) -> None:
-    """Delete a product by ID."""
+    """Delete a product by ID. Raises ValidationError if the product has existing orders."""
     try:
+        from app.models.order import OrderItem
         db_product = get_product(db, product_id)
+
+        linked = db.query(OrderItem).filter(OrderItem.product_id == product_id).first()
+        if linked:
+            raise ValidationError(
+                f"Cannot delete '{db_product.name}' because it is referenced by existing orders. "
+                "Cancel or delete the associated orders first."
+            )
+
         db.delete(db_product)
         db.commit()
-    except ResourceNotFoundError:
+    except (ResourceNotFoundError, ValidationError):
         raise
     except Exception as e:
         db.rollback()
