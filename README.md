@@ -1,407 +1,424 @@
-# Inventory & Order Management System
+# InvenTrack — Inventory & Order Management System
 
-## 📋 Overview
-
-A **production-ready**, fully containerized Inventory & Order Management System built with modern technologies. This system allows businesses to efficiently manage products, customers, and orders with real-time inventory tracking.
-
-### 🎯 Live Demo (After Deployment)
-- **Frontend**: https://your-frontend.vercel.app
-- **Backend API**: https://your-api.onrender.com
-- **API Docs**: https://your-api.onrender.com/api/docs
+A production-ready, fully containerized Inventory & Order Management System built with FastAPI and React. Manage products, customers, and orders with automatic inventory tracking, real-time low-stock alerts, and a fully responsive UI.
 
 ---
 
-## 🛠️ Tech Stack
+## Live Demo
+
+| Service | URL |
+|---|---|
+| Frontend | https://inventory-frontend.vercel.app |
+| Backend API | https://inventory-backend-5r3a.onrender.com |
+| API Docs (Swagger) | https://inventory-backend-5r3a.onrender.com/api/docs |
+| API Docs (ReDoc) | https://inventory-backend-5r3a.onrender.com/api/redoc |
+
+---
+
+## Tech Stack
 
 ### Backend
-- **Framework**: FastAPI (Python)
-- **Database**: PostgreSQL
-- **ORM**: SQLAlchemy
-- **Validation**: Pydantic
-- **Server**: Uvicorn (ASGI)
+| Technology | Version | Purpose |
+|---|---|---|
+| Python | 3.11 | Runtime |
+| FastAPI | 0.104.1 | Web framework |
+| SQLAlchemy | 2.0.36 | ORM |
+| Pydantic | 2.10.6 | Data validation |
+| Uvicorn | 0.24.0 | ASGI server |
+| PostgreSQL | 15 | Database |
+| Alembic | 1.13.1 | DB migrations |
+| psycopg2 | 2.9.10 | PostgreSQL driver |
 
 ### Frontend
-- **Framework**: React 18 with TypeScript
-- **State Management**: Redux Toolkit
-- **Styling**: Tailwind CSS
-- **HTTP Client**: Axios
-- **Build Tool**: Create React App
+| Technology | Version | Purpose |
+|---|---|---|
+| React | 18.2.0 | UI framework |
+| TypeScript | 5.3.3 | Type safety |
+| Redux Toolkit | 1.9.7 | State management |
+| Tailwind CSS | 3.3.6 | Styling |
+| React Router | 6.20.0 | Client routing |
+| Axios | 1.6.2 | HTTP client |
+| Lucide React | 0.294.0 | Icons |
 
 ### Infrastructure
-- **Containerization**: Docker
-- **Orchestration**: Docker Compose
-- **Backend Hosting**: Render/Railway/Fly.io
-- **Frontend Hosting**: Vercel/Netlify
-- **Database**: PostgreSQL (Cloud Managed)
+- **Docker + Docker Compose** — containerized development and production
+- **Nginx** — reverse proxy, static file serving, gzip compression
+- **Redis** — pub/sub for real-time notifications
 
 ---
 
-## ✨ Features
+## Features
 
 ### Product Management
-- ✅ CRUD operations for products
-- ✅ SKU/code with unique constraint
-- ✅ Inventory tracking
-- ✅ Price management
-- ✅ Low stock alerts
+- Create, read, update, delete products
+- Unique SKU enforcement (immutable after creation)
+- Inventory quantity tracking with non-negative constraint
+- Low-stock alerts when quantity ≤ 10 units
+- Guard against deleting products referenced by existing orders
 
 ### Customer Management
-- ✅ CRUD operations for customers
-- ✅ Email uniqueness validation
-- ✅ Contact information
-- ✅ Address management
+- Create, read, update, delete customers
+- Unique email enforcement (immutable after creation)
+- Optional phone number and address fields
 
 ### Order Management
-- ✅ Create orders with multiple items
-- ✅ Automatic inventory reduction
-- ✅ Automatic total calculation
-- ✅ Order status tracking
-- ✅ Order cancellation with inventory restoration
+- Multi-item orders with per-item stock validation
+- Automatic total amount calculation
+- Atomic stock deduction on order creation
+- **Inventory auto-restored when order is cancelled**
+- Order status lifecycle: `pending` → `confirmed` → `shipped` → `delivered` | `cancelled`
+- Revenue calculation excludes cancelled orders
 
 ### Dashboard
-- ✅ Total products count
-- ✅ Total customers count
-- ✅ Total orders count
-- ✅ Total revenue calculation
-- ✅ Low stock products alert
-- ✅ Real-time statistics
+- KPI cards: total products, customers, orders, revenue
+- Low-stock products panel (≤ 10 units, with visual progress bar)
+- Recent orders list
+- Fully responsive — mobile card view + desktop table view
+
+### UI / UX
+- Fully responsive across all screen sizes (mobile, tablet, desktop)
+- Slide-in sidebar with overlay on mobile
+- Command+K global search
+- Toast notifications for all actions
+- Real-time low-stock badge on dashboard
 
 ---
 
-## 🚀 Quick Start
+## Project Structure
 
-### Prerequisites
-- Docker & Docker Compose installed
-- Or: Python 3.11+ & Node.js 18+
+```
+Order-Management-System/
+├── backend/
+│   ├── app/
+│   │   ├── main.py                 # FastAPI app, CORS, routers
+│   │   ├── config.py               # Settings from environment
+│   │   ├── database.py             # SQLAlchemy engine & session
+│   │   ├── models/
+│   │   │   ├── product.py          # Product model
+│   │   │   ├── customer.py         # Customer model
+│   │   │   └── order.py            # Order + OrderItem models
+│   │   ├── schemas/
+│   │   │   ├── product.py          # Pydantic request/response schemas
+│   │   │   ├── customer.py
+│   │   │   └── order.py
+│   │   ├── routes/
+│   │   │   ├── products.py         # /api/products endpoints
+│   │   │   ├── customers.py        # /api/customers endpoints
+│   │   │   ├── orders.py           # /api/orders endpoints
+│   │   │   └── websocket.py        # WebSocket support
+│   │   ├── services/
+│   │   │   ├── product_service.py  # Product business logic
+│   │   │   ├── customer_service.py # Customer business logic
+│   │   │   ├── order_service.py    # Order + inventory logic
+│   │   │   └── notification_service.py # Redis pub/sub
+│   │   └── utils/
+│   │       ├── exceptions.py       # Custom HTTP exceptions
+│   │       └── validators.py       # Input validators
+│   ├── tests/
+│   ├── alembic/                    # Database migrations
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .env.example
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── common/             # Header, Sidebar, Footer, etc.
+│   │   │   ├── dashboard/          # Dashboard + StatsCard
+│   │   │   ├── products/           # ProductList, ProductForm
+│   │   │   ├── customers/          # CustomerList, CustomerForm
+│   │   │   └── orders/             # OrderList, OrderForm, OrderDetail
+│   │   ├── pages/                  # Page-level route components
+│   │   ├── services/               # Axios API wrappers
+│   │   ├── store/slices/           # Redux slices (products, customers, orders)
+│   │   ├── hooks/                  # useAppDispatch, useAppSelector
+│   │   ├── utils/                  # formatCurrency, formatDate, constants
+│   │   ├── styles/index.css        # Tailwind component layer
+│   │   └── App.tsx                 # Routes + layout
+│   ├── tailwind.config.js
+│   ├── package.json
+│   ├── Dockerfile
+│   └── .env.example
+│
+├── docker-compose.yml              # Development (postgres + redis + backend + frontend)
+├── docker-compose.prod.yml         # Production (+ nginx)
+├── nginx.conf                      # Reverse proxy config
+└── .gitignore
+```
 
-### Local Development with Docker
+---
+
+## API Endpoints
+
+### Products — `/api/products`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/products` | Create product. Returns `409` if SKU already exists. |
+| `GET` | `/api/products` | List products. Query params: `skip`, `limit`. |
+| `GET` | `/api/products/{id}` | Get single product. |
+| `PUT` | `/api/products/{id}` | Update name, price, quantity, description. SKU is immutable. |
+| `DELETE` | `/api/products/{id}` | Delete product. Returns `400` if referenced by any order. |
+
+### Customers — `/api/customers`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/customers` | Create customer. Returns `409` if email already exists. |
+| `GET` | `/api/customers` | List customers. Query params: `skip`, `limit`. |
+| `GET` | `/api/customers/{id}` | Get single customer. |
+| `PUT` | `/api/customers/{id}` | Update name, phone, address. Email is immutable. |
+| `DELETE` | `/api/customers/{id}` | Delete customer. |
+
+### Orders — `/api/orders`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/orders` | Create order. Validates stock, deducts inventory, auto-calculates total. |
+| `GET` | `/api/orders` | List orders with customer + items. Query params: `skip`, `limit`. |
+| `GET` | `/api/orders/{id}` | Get order detail with all items and customer info. |
+| `PUT` | `/api/orders/{id}` | Update order status. Cancelling restores product inventory. |
+| `DELETE` | `/api/orders/{id}` | Delete order and restore inventory for all line items. |
+| `GET` | `/api/orders/customer/{customer_id}` | Get all orders for a customer. |
+| `GET` | `/api/orders/stats/dashboard` | Dashboard stats: counts, revenue, low-stock list. |
+
+### Health
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/health` | Health check — returns `{"status": "healthy"}` |
+| `GET` | `/api/docs` | Swagger UI |
+| `GET` | `/api/redoc` | ReDoc |
+
+---
+
+## Database Schema
+
+### `products`
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | Integer | PK |
+| `name` | String(255) | NOT NULL, indexed |
+| `sku` | String(100) | NOT NULL, UNIQUE, indexed |
+| `price` | Numeric(10,2) | NOT NULL, > 0 |
+| `quantity` | Integer | NOT NULL, default 0, ≥ 0 |
+| `description` | Text | nullable |
+| `created_at` | Timestamp TZ | server default |
+| `updated_at` | Timestamp TZ | server default, on update |
+
+### `customers`
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | Integer | PK |
+| `full_name` | String(255) | NOT NULL, indexed |
+| `email` | String(255) | NOT NULL, UNIQUE, indexed |
+| `phone_number` | String(20) | nullable |
+| `address` | Text | nullable |
+| `created_at` | Timestamp TZ | server default |
+| `updated_at` | Timestamp TZ | server default, on update |
+
+### `orders`
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | Integer | PK |
+| `customer_id` | Integer | FK → customers(id) ON DELETE CASCADE |
+| `total_amount` | Numeric(10,2) | NOT NULL, ≥ 0 |
+| `status` | String(50) | NOT NULL, default `pending` |
+| `created_at` | Timestamp TZ | server default |
+| `updated_at` | Timestamp TZ | server default, on update |
+
+### `order_items`
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | Integer | PK |
+| `order_id` | Integer | FK → orders(id) ON DELETE CASCADE |
+| `product_id` | Integer | FK → products(id) NOT NULL |
+| `quantity` | Integer | NOT NULL, > 0 |
+| `unit_price` | Numeric(10,2) | NOT NULL, > 0 |
+| `subtotal` | Numeric(10,2) | NOT NULL, > 0 |
+| `created_at` | Timestamp TZ | server default |
+
+---
+
+## Environment Variables
+
+### Backend — `backend/.env`
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/inventory_db
+DEBUG=True
+CORS_ORIGINS=["http://localhost:3000"]
+REDIS_URL=redis://localhost:6379/0
+```
+
+### Frontend — `frontend/.env`
+```env
+REACT_APP_API_URL=http://localhost:8000
+```
+
+---
+
+## Quick Start
+
+### With Docker (Recommended)
 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd inventory-management-system
+cd Order-Management-System
 
-# Create environment files
+# Set up environment files
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 
-# Start all services
+# Start all services (postgres, redis, backend, frontend)
 docker-compose up -d
 
-# Access the application
-# Frontend: http://localhost:3000
-# Backend: http://localhost:8000
-# API Docs: http://localhost:8000/api/docs
+# View logs
+docker-compose logs -f
 ```
 
-### Local Development without Docker
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/api/docs |
 
-**Backend**:
+### Without Docker
+
+**Backend:**
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --reload
+cp .env.example .env            # Edit DATABASE_URL to point at your Postgres
+uvicorn app.main:app --reload --port 8000
 ```
 
-**Frontend**:
+**Frontend:**
 ```bash
 cd frontend
 npm install
-cp .env.example .env
+cp .env.example .env            # Set REACT_APP_API_URL=http://localhost:8000
 npm start
 ```
 
 ---
 
-## 📁 Project Structure
-
-```
-inventory-management-system/
-├── backend/                    # FastAPI backend
-│   ├── app/
-│   │   ├── main.py            # Application entry
-│   │   ├── config.py          # Settings
-│   │   ├── database.py        # DB setup
-│   │   ├── models/            # SQLAlchemy models
-│   │   ├── schemas/           # Pydantic schemas
-│   │   ├── routes/            # API endpoints
-│   │   ├── services/          # Business logic
-│   │   └── utils/             # Utilities
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── README.md
-│
-├── frontend/                   # React TypeScript frontend
-│   ├── src/
-│   │   ├── components/        # React components
-│   │   ├── pages/             # Page components
-│   │   ├── services/          # API services
-│   │   ├── store/             # Redux store
-│   │   ├── types/             # TypeScript types
-│   │   ├── utils/             # Utilities
-│   │   ├── hooks/             # Custom hooks
-│   │   ├── styles/            # CSS styles
-│   │   ├── App.tsx            # Main app
-│   │   └── index.tsx          # Entry point
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── Dockerfile
-│   └── README.md
-│
-├── docker-compose.yml         # Development setup
-├── docker-compose.prod.yml    # Production setup
-├── PROJECT_PLAN.md            # Detailed project plan
-├── DEPLOYMENT.md              # Deployment guide
-├── README.md                  # This file
-└── .gitignore
-
-```
-
----
-
-## 🔌 API Endpoints
-
-### Products
-```
-POST   /api/products              # Create product
-GET    /api/products              # List products (paginated)
-GET    /api/products/{id}         # Get product
-PUT    /api/products/{id}         # Update product
-DELETE /api/products/{id}         # Delete product
-```
-
-### Customers
-```
-POST   /api/customers             # Create customer
-GET    /api/customers             # List customers (paginated)
-GET    /api/customers/{id}        # Get customer
-PUT    /api/customers/{id}        # Update customer
-DELETE /api/customers/{id}        # Delete customer
-```
-
-### Orders
-```
-POST   /api/orders                # Create order
-GET    /api/orders                # List orders (paginated)
-GET    /api/orders/{id}           # Get order details
-PUT    /api/orders/{id}           # Update order status
-DELETE /api/orders/{id}           # Cancel order
-GET    /api/orders/customer/{id}  # Get customer orders
-GET    /api/orders/stats/dashboard # Dashboard stats
-```
-
-### Health & Utility
-```
-GET    /health                    # Health check
-GET    /                          # Root endpoint
-GET    /api/docs                  # Swagger UI
-GET    /api/redoc                 # ReDoc
-```
-
----
-
-## 🗄️ Database Schema
-
-### Products Table
-- `id` - Primary key
-- `name` - Product name
-- `sku` - Unique SKU/code
-- `price` - Product price
-- `quantity` - Current stock
-- `description` - Product description
-- `created_at`, `updated_at` - Timestamps
-
-### Customers Table
-- `id` - Primary key
-- `full_name` - Customer name
-- `email` - Unique email
-- `phone_number` - Contact phone
-- `address` - Customer address
-- `created_at`, `updated_at` - Timestamps
-
-### Orders Table
-- `id` - Primary key
-- `customer_id` - FK to customers
-- `total_amount` - Order total
-- `status` - Order status
-- `created_at`, `updated_at` - Timestamps
-
-### Order Items Table
-- `id` - Primary key
-- `order_id` - FK to orders
-- `product_id` - FK to products
-- `quantity` - Quantity ordered
-- `unit_price` - Price at time of order
-- `subtotal` - Line total
-
----
-
-## 🔐 Security Features
-
-- ✅ Input validation on all endpoints
-- ✅ SQL injection prevention (ORM)
-- ✅ CORS configuration
-- ✅ Environment variables for secrets
-- ✅ Proper error handling
-- ✅ No sensitive data in responses
-- ✅ Non-root user in Docker containers
-
----
-
-## 📦 Docker Hub
-
-Backend image pushed to Docker Hub:
-```bash
-docker pull your-dockerhub-username/inventory-api:latest
-```
-
----
-
-## 🚀 Deployment
-
-### Production Deployment Platforms
-
-**Recommended Stack**:
-- **Backend**: Render (Free tier available)
-- **Frontend**: Vercel (Free tier available)
-- **Database**: Render PostgreSQL (Free tier available)
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
-
-### Deployment Checklist
-- [ ] Environment variables configured
-- [ ] Database connection verified
-- [ ] CORS properly set
-- [ ] API documentation accessible
-- [ ] Frontend and backend connected
-- [ ] SSL/HTTPS enabled
-- [ ] Monitoring set up
-- [ ] Backups configured
-
----
-
-## 📊 Performance
-
-### Backend Optimizations
-- Database connection pooling
-- Query optimization with indexes
-- Pagination support
-- Async/await for I/O operations
-
-### Frontend Optimizations
-- Code splitting
-- Lazy loading components
-- CSS minification
-- Image optimization
-- Redux for efficient state management
-
----
-
-## 🧪 Testing
+## Testing
 
 ```bash
-# Backend tests
+# Backend unit + integration tests
 cd backend
 pytest
 
-# Coverage report
-pytest --cov=app tests/
-
-# Frontend tests
-cd frontend
-npm test
+# With coverage report
+pytest --cov=app tests/ --cov-report=term-missing
 ```
 
 ---
 
-## 📝 API Documentation
+## Production Deployment
 
-### Swagger UI
-Available at `http://localhost:8000/api/docs` during development or your deployed backend URL.
+### Docker Compose (Self-hosted)
 
-### ReDoc
-Available at `http://localhost:8000/api/redoc`
+```bash
+# Copy and configure production env
+cp backend/.env.example backend/.env   # set DEBUG=False, real DB URL
+cp frontend/.env.example frontend/.env # set REACT_APP_API_URL to deployed backend
+
+# Build and start with nginx
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+Nginx listens on port 80 and:
+- Proxies `/api/*`, `/health`, `/docs`, `/redoc` → FastAPI backend
+- Serves the React build as static files with SPA fallback
+- Enables gzip and 1-year cache headers for assets
+
+### Recommended Cloud Stack (Free Tier)
+
+| Layer | Platform | Notes |
+|---|---|---|
+| Database | Render PostgreSQL | Free managed Postgres |
+| Backend | Render Web Service | Auto-deploys from GitHub |
+| Frontend | Vercel | Auto-deploys from GitHub |
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions.
+
+### Deployment Checklist
+- [ ] `DATABASE_URL` set on backend service
+- [ ] `DEBUG=False` in production
+- [ ] `CORS_ORIGINS` includes the frontend URL
+- [ ] `REACT_APP_API_URL` points at the deployed backend
+- [ ] HTTPS enabled on both services
+- [ ] Database backups configured
 
 ---
 
-## 🐛 Troubleshooting
+## Key Business Rules
 
-### Database Connection Issues
+| Rule | Detail |
+|---|---|
+| Stock deduction | Atomic on order creation — fails with 400 if any item has insufficient stock |
+| Inventory restore | Happens immediately when order status → `cancelled` OR order is deleted |
+| Low-stock threshold | 10 units — products at or below appear in dashboard and trigger notification |
+| Product deletion guard | Returns 400 if the product is referenced by any order item |
+| SKU immutability | SKU cannot be changed after product creation |
+| Email immutability | Customer email cannot be changed after creation |
+| Revenue calculation | Excludes all cancelled orders |
+
+---
+
+## Troubleshooting
+
+**Database connection refused**
 ```bash
-# Check PostgreSQL is running
-docker ps | grep postgres
-
-# View logs
-docker logs inventory_postgres
+docker ps | grep postgres          # Check it is running
+docker logs inventory_postgres     # View postgres logs
 ```
 
-### Backend Errors
+**Backend 500 errors**
 ```bash
-# Check backend logs
-docker logs inventory_backend
-
-# Verify environment variables
-docker inspect inventory_backend | grep ENV
+docker logs inventory_backend      # Check stack trace
+docker inspect inventory_backend   # Verify env vars
 ```
 
-### Frontend Issues
+**Frontend not connecting to API**
 ```bash
-# Clear node modules and reinstall
-rm -rf node_modules
-npm install
-
-# Clear build cache
-rm -rf build
+# Confirm REACT_APP_API_URL is set correctly in frontend/.env
+# The variable must be set at build time — rebuild after changing it
 npm run build
 ```
 
+**node_modules issues**
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
 ---
 
-## 🤝 Contributing
+## Security
+
+- All inputs validated by Pydantic (backend) and TypeScript types (frontend)
+- ORM queries prevent SQL injection
+- CORS restricted to configured origins
+- Secrets stored in environment variables, never committed
+- Docker containers run as non-root users
+- Check constraints enforce data integrity at the database level
+
+---
+
+## Contributing
 
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push and open a Pull Request
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see LICENSE file for details.
-
----
-
-## 📞 Support
-
-For issues, questions, or suggestions, please open an issue in the GitHub repository.
-
----
-
-## 🎓 Learning Resources
-
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [React Documentation](https://react.dev/)
-- [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
-- [Docker Documentation](https://docs.docker.com/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-
----
-
-## 📈 Next Steps
-
-1. ✅ Clone repository
-2. ✅ Set up local environment
-3. ✅ Review PROJECT_PLAN.md for architecture
-4. ✅ Read DEPLOYMENT.md for production setup
-5. ✅ Deploy to your chosen platform
-6. ✅ Monitor performance
-7. ✅ Scale as needed
-
----
-
-**Made with ❤️ for production-ready systems**
+MIT License — see the LICENSE file for details.

@@ -1,8 +1,10 @@
 # Node
+node_modules/
 frontend/node_modules/
 frontend/.pnpm-store/
 frontend/dist/
 frontend/build/
+pnpm-lock.yaml
 
 # Python
 __pycache__/
@@ -10,9 +12,17 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-backend/.venv/
+.venv/
 venv/
+backend/.venv/
+backend/venv/
 *.egg-info/
+
+# Test artifacts
+.pytest_cache/
+*.db
+.coverage
+htmlcov/
 
 # Env files
 .env
@@ -21,11 +31,17 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+.DS_Store?
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # Logs
 *.log
 npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
