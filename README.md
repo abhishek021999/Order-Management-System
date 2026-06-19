@@ -15,6 +15,18 @@ A production-ready, fully containerized Inventory & Order Management System buil
 
 ---
 
+## Docker Hub
+
+Backend image is available on Docker Hub:
+
+```bash
+docker pull abhisheksingh1921/inventory-api:latest
+```
+
+Image: [hub.docker.com/r/abhisheksingh1921/inventory-api](https://hub.docker.com/r/abhisheksingh1921/inventory-api)
+
+---
+
 ## Tech Stack
 
 ### Backend
