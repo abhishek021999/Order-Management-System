@@ -90,7 +90,62 @@ const CustomerList: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="table-container rounded-none border-0">
+          <>
+          {/* ── Mobile card list ─────────────────────────────── */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {filtered.map((c, i) => (
+              <div key={c.id} className="flex items-start gap-3 px-4 py-4 hover:bg-slate-50 transition-colors">
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${AVATAR_COLORS[i % AVATAR_COLORS.length]} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm`}>
+                  {initials(c.full_name)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-800 text-sm truncate">{c.full_name}</p>
+                      <p className="text-[11px] text-slate-400">ID #{c.id}</p>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => navigate(`/customers/${c.id}/edit`)}
+                        className="w-8 h-8 rounded-lg text-brand-500 hover:bg-brand-50 flex items-center justify-center transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(c.id)}
+                        className="w-8 h-8 rounded-lg text-slate-300 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-center transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-1.5 text-[12px] text-slate-600">
+                      <Mail size={11} className="text-slate-400 flex-shrink-0" />
+                      <a href={`mailto:${c.email}`} className="truncate hover:text-brand-600 transition-colors">
+                        {c.email}
+                      </a>
+                    </div>
+                    {c.phone_number && (
+                      <div className="flex items-center gap-1.5 text-[12px] text-slate-500">
+                        <Phone size={11} className="text-slate-400 flex-shrink-0" />
+                        {c.phone_number}
+                      </div>
+                    )}
+                    {c.address && (
+                      <p className="text-[11px] text-slate-400 truncate">{c.address}</p>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1.5">Joined {formatDate(c.created_at)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table ─────────────────────────────────── */}
+          <div className="hidden md:block table-container rounded-none border-0">
             <table className="table table-fixed w-full">
               <thead>
                 <tr>
@@ -153,6 +208,7 @@ const CustomerList: React.FC = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {total > pageSize && (

@@ -59,31 +59,31 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 sm:flex-col">
+          <div className="grid grid-cols-3 sm:grid-cols-1 gap-2 sm:w-auto w-full">
             <button
               onClick={() => navigate("/orders/new")}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition-colors shadow-brand"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition-colors shadow-brand"
             >
-              <Zap size={15} /> New Order
+              <Zap size={15} /> <span className="hidden sm:inline">New Order</span><span className="sm:hidden">Order</span>
             </button>
             <button
               onClick={() => navigate("/products/new")}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-medium transition-colors"
             >
-              <Package size={15} /> Add Product
+              <Package size={15} /> <span className="hidden sm:inline">Add Product</span><span className="sm:hidden">Product</span>
             </button>
             <button
               onClick={() => navigate("/customers/new")}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-medium transition-colors"
             >
-              <Users size={15} /> Add Customer
+              <Users size={15} /> <span className="hidden sm:inline">Add Customer</span><span className="sm:hidden">Customer</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* ── KPI cards ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Products"
           value={stats.total_products.toLocaleString()}
@@ -120,7 +120,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* ── Main grid ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* Recent orders table */}
         <div className="xl:col-span-2 card overflow-hidden">
@@ -147,51 +147,90 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="table-container rounded-none border-0">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Order</th>
-                    <th>Customer</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.slice(0, 6).map((o) => (
-                    <tr
-                      key={o.id}
-                      className="cursor-pointer"
-                      onClick={() => navigate(`/orders/${o.id}`)}
-                    >
-                      <td>
-                        <span className="font-mono text-brand-600 font-bold text-xs bg-brand-50 px-2 py-0.5 rounded-lg">
-                          #{o.id}
+            <>
+              {/* ── Mobile card list ───────────────────────────── */}
+              <div className="md:hidden divide-y divide-slate-100">
+                {orders.slice(0, 6).map((o) => (
+                  <div
+                    key={o.id}
+                    className="flex items-start gap-3 px-4 py-4 hover:bg-slate-50 active:bg-slate-100 cursor-pointer transition-colors"
+                    onClick={() => navigate(`/orders/${o.id}`)}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 flex-shrink-0 mt-0.5">
+                      {o.customer?.full_name?.[0] ?? "?"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-slate-800 text-sm truncate">
+                          {o.customer?.full_name ?? `#${o.customer_id}`}
                         </span>
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 flex-shrink-0">
-                            {o.customer?.full_name?.[0] ?? "?"}
-                          </div>
-                          <span className="font-medium text-slate-800 text-[13px]">
-                            {o.customer?.full_name ?? `#${o.customer_id}`}
+                        <span className="font-bold text-slate-900 text-sm flex-shrink-0">
+                          {formatCurrency(o.total_amount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 mt-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-brand-600 font-bold text-[11px] bg-brand-50 px-1.5 py-0.5 rounded-md">
+                            #{o.id}
+                          </span>
+                          <span className={`badge text-[10px] ${STATUS_BADGE[o.status] ?? "badge-slate"}`}>
+                            {ORDER_STATUS_LABELS[o.status] ?? o.status}
                           </span>
                         </div>
-                      </td>
-                      <td className="font-bold text-slate-900">{formatCurrency(o.total_amount)}</td>
-                      <td>
-                        <span className={`badge ${STATUS_BADGE[o.status] ?? "badge-slate"}`}>
-                          {ORDER_STATUS_LABELS[o.status] ?? o.status}
-                        </span>
-                      </td>
-                      <td className="text-slate-400 text-xs">{formatDate(o.created_at)}</td>
+                        <span className="text-[11px] text-slate-400 flex-shrink-0">{formatDate(o.created_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── Desktop table ──────────────────────────────── */}
+              <div className="hidden md:block table-container rounded-none border-0">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {orders.slice(0, 6).map((o) => (
+                      <tr
+                        key={o.id}
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/orders/${o.id}`)}
+                      >
+                        <td>
+                          <span className="font-mono text-brand-600 font-bold text-xs bg-brand-50 px-2 py-0.5 rounded-lg">
+                            #{o.id}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 flex-shrink-0">
+                              {o.customer?.full_name?.[0] ?? "?"}
+                            </div>
+                            <span className="font-medium text-slate-800 text-[13px]">
+                              {o.customer?.full_name ?? `#${o.customer_id}`}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="font-bold text-slate-900">{formatCurrency(o.total_amount)}</td>
+                        <td>
+                          <span className={`badge ${STATUS_BADGE[o.status] ?? "badge-slate"}`}>
+                            {ORDER_STATUS_LABELS[o.status] ?? o.status}
+                          </span>
+                        </td>
+                        <td className="text-slate-400 text-xs">{formatDate(o.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 

@@ -187,15 +187,15 @@
   /* ══ PAGE HEADER ══════════════════════════════════════════════ */
 
   .page-header {
-    @apply flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-7;
+    @apply flex items-start justify-between gap-3 mb-7;
   }
 
   .page-title {
-    @apply text-2xl font-bold text-slate-900 tracking-tight leading-tight;
+    @apply text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight;
   }
 
   .page-subtitle {
-    @apply text-sm text-slate-500 mt-1 leading-relaxed;
+    @apply text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed;
   }
 
   /* ══ EMPTY STATE ══════════════════════════════════════════════ */
@@ -214,13 +214,13 @@
   /* ══ STAT CARD ════════════════════════════════════════════════ */
 
   .stat-card {
-    @apply card p-5 flex items-start gap-4
+    @apply card p-3 sm:p-5 flex items-start gap-2 sm:gap-4
            hover:shadow-card-md hover:-translate-y-0.5
            transition-all duration-300 cursor-default;
   }
 
   .stat-icon {
-    @apply flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center;
+    @apply flex-shrink-0 w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center;
   }
 
   /* ══ SIDEBAR NAV ITEM ═════════════════════════════════════════ */

@@ -88,7 +88,58 @@ const ProductList: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="table-container rounded-none border-0">
+          <>
+          {/* ── Mobile card list ─────────────────────────────── */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {filtered.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 px-4 py-4 hover:bg-slate-50 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-50 to-indigo-100 flex items-center justify-center flex-shrink-0 border border-brand-100/50">
+                  <Package size={16} className="text-brand-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-slate-800 text-sm truncate">{p.name}</p>
+                    <span className="font-bold text-slate-900 text-sm flex-shrink-0">{formatCurrency(p.price)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200/60">
+                        {p.sku}
+                      </span>
+                      <span className={`badge text-[10px] ${
+                        p.quantity === 0 ? "badge-rose" :
+                        p.quantity <= 10 ? "badge-amber" : "badge-emerald"
+                      }`}>
+                        {p.quantity === 0 ? "Out of stock" : `${p.quantity} units`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => navigate(`/products/${p.id}/edit`)}
+                        className="w-8 h-8 rounded-lg text-brand-500 hover:bg-brand-50 flex items-center justify-center transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(p.id)}
+                        className="w-8 h-8 rounded-lg text-slate-300 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-center transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                  {p.description && (
+                    <p className="text-[11px] text-slate-400 mt-1 truncate">{p.description}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table ─────────────────────────────────── */}
+          <div className="hidden md:block table-container rounded-none border-0">
             <table className="table table-fixed w-full">
               <thead>
                 <tr>
@@ -154,6 +205,7 @@ const ProductList: React.FC = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {/* Pagination */}

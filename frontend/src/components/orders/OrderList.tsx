@@ -86,7 +86,57 @@ const OrderList: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="table-container rounded-none border-0">
+          <>
+          {/* ── Mobile card list ─────────────────────────────── */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {filtered.map((o) => (
+              <div
+                key={o.id}
+                className="flex items-start gap-3 px-4 py-4 hover:bg-slate-50 active:bg-slate-100 cursor-pointer transition-colors"
+                onClick={() => navigate(`/orders/${o.id}`)}
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-600 flex-shrink-0 mt-0.5">
+                  {o.customer?.full_name?.[0] ?? "?"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-800 text-sm truncate">
+                      {o.customer?.full_name ?? `Customer #${o.customer_id}`}
+                    </span>
+                    <span className="font-bold text-slate-900 text-sm flex-shrink-0">
+                      {formatCurrency(o.total_amount)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-brand-600 font-bold text-[11px] bg-brand-50 px-1.5 py-0.5 rounded-md">
+                        #{o.id}
+                      </span>
+                      <span className={`badge text-[10px] ${STATUS_BADGE[o.status] ?? "badge-slate"}`}>
+                        {ORDER_STATUS_LABELS[o.status] ?? o.status}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 flex-shrink-0">{formatDate(o.created_at)}</span>
+                  </div>
+                  {(o.items?.length ?? 0) > 0 && (
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      {o.items!.length} item{o.items!.length !== 1 ? "s" : ""}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setDeleteId(o.id); }}
+                  className="flex-shrink-0 w-8 h-8 rounded-lg text-slate-300 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-center transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table ─────────────────────────────────── */}
+          <div className="hidden md:block table-container rounded-none border-0">
             <table className="table table-fixed w-full">
               <thead>
                 <tr>
@@ -145,6 +195,7 @@ const OrderList: React.FC = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {total > pageSize && (
