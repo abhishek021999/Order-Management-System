@@ -133,7 +133,13 @@ def update_order(db: Session, order_id: int, order_update: OrderUpdate) -> Order
         old_status = db_order.status
 
         if order_update.status is not None:
-            db_order.status = order_update.status
+            new_status = order_update.status
+            # Restore inventory when cancelling a non-cancelled order
+            if new_status == "cancelled" and old_status != "cancelled":
+                for item in db_order.order_items:
+                    product = product_service.get_product(db, item.product_id)
+                    product.quantity += item.quantity
+            db_order.status = new_status
 
         db.commit()
         db.refresh(db_order)
