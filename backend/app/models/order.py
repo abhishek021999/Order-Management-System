@@ -52,7 +52,7 @@ class OrderItem(Base):
     
     # Relationships
     order = relationship("Order", back_populates="order_items")
-    product = relationship("Product", backref="order_items")
+    product = relationship("Product")
 
     __table_args__ = (
         CheckConstraint('quantity > 0', name='positive_quantity'),
